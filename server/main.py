@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.engine.evaluator import get_worst_move
 import chess
+import traceback
 from enum import Enum
 from typing import Literal
 

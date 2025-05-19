@@ -80,6 +80,13 @@ def initialize_engine() -> subprocess.Popen:
     if not os.path.exists(STOCKFISH_PATH):
         raise RuntimeError(f"Stockfish engine not found at {STOCKFISH_PATH}")
 
+    # Prepare subprocess startup info
+    startupinfo = None
+    if os.name == 'nt':  # Only use CREATE_NO_WINDOW on Windows
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = subprocess.SW_HIDE
+
     process = subprocess.Popen(
         [STOCKFISH_PATH],
         stdin=subprocess.PIPE,
@@ -87,7 +94,9 @@ def initialize_engine() -> subprocess.Popen:
         stderr=subprocess.PIPE,
         text=True,
         bufsize=1,
-        creationflags=subprocess.CREATE_NO_WINDOW
+        startupinfo=startupinfo,
+        # Redirect input/output for non-Windows platforms
+        **({'creationflags': subprocess.CREATE_NO_WINDOW} if os.name == 'nt' else {})
     )
 
     # Initialize UCI
