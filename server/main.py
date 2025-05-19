@@ -10,17 +10,48 @@ from typing import Literal
 app = FastAPI(
     title="BlundrBot API",
     description="Chess API that suggests the worst possible legal move",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return {
+        "message": "Welcome to BlundrBot API. Visit /docs for the API documentation.",
+        "documentation": "/docs",
+        "version": "1.0.0"
+    }
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",  # React dev server
+        "http://localhost:8000",  # FastAPI server (for Swagger UI)
+        "https://blundrbot.onrender.com",  # Production frontend
+    ],
+    allow_origin_regex=r"https?://localhost(:[0-9]+)?",  # Allow any localhost port
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
+
+# Add middleware to handle preflight requests
+@app.middleware("http")
+async def add_cors_headers(request, call_next):
+    if request.method == "OPTIONS":
+        from fastapi.responses import Response
+        response = Response()
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
+    
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
 
 class GameStatus(str, Enum):
     CHECKMATE = "checkmate"
