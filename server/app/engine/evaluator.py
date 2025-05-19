@@ -82,22 +82,33 @@ def initialize_engine() -> subprocess.Popen:
 
     # Prepare subprocess startup info
     startupinfo = None
-    if os.name == 'nt':  # Only use CREATE_NO_WINDOW on Windows
+    kwargs = {
+        'stdin': subprocess.PIPE,
+        'stdout': subprocess.PIPE,
+        'stderr': subprocess.PIPE,
+        'text': True,
+        'bufsize': 1,
+    }
+
+    if os.name == 'nt':  # Windows
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
+        kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+    else:  # Unix/Linux/Mac
+        # Use os.devnull to prevent any console output
+        kwargs.update({
+            'start_new_session': True,
+            'stdin': subprocess.PIPE,
+            'stdout': subprocess.PIPE,
+            'stderr': subprocess.PIPE
+        })
 
-    process = subprocess.Popen(
-        [STOCKFISH_PATH],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        bufsize=1,
-        startupinfo=startupinfo,
-        # Redirect input/output for non-Windows platforms
-        **({'creationflags': subprocess.CREATE_NO_WINDOW} if os.name == 'nt' else {})
-    )
+    try:
+        process = subprocess.Popen([STOCKFISH_PATH], **kwargs)
+    except Exception as e:
+        logger.error(f"Failed to start Stockfish: {e}")
+        raise RuntimeError(f"Failed to start Stockfish: {e}")
 
     # Initialize UCI
     send_command(process, "uci")
@@ -136,7 +147,7 @@ def evaluate_position(process: subprocess.Popen, board: chess.Board) -> Optional
 
     return best_eval
 
-def get_worst_move(board: chess.Board) -> Optional[chess.Move]:
+def get_worst_move(board: chess.Board) -> tuple[Optional[chess.Move], int]:
     """
     Find the worst legal move in the given position.
     
@@ -144,51 +155,74 @@ def get_worst_move(board: chess.Board) -> Optional[chess.Move]:
         board: A chess.Board object representing the current position
         
     Returns:
-        The worst legal move found, or None if no moves could be evaluated
+        A tuple containing the worst move and its evaluation score
         
     Raises:
-        RuntimeError: If there's an error with the Stockfish engine
+        RuntimeError: If there's an error evaluating the position
     """
+    process = None
     try:
         process = initialize_engine()
-        try:
-            worst_eval = float('inf')
-            worst_move = None
-            eval_board = board.copy()
-
-            for move in eval_board.legal_moves:
-                eval_board.push(move)
-                result = evaluate_position(process, eval_board)
-                eval_board.pop()
-
-                if result is None:
-                    continue
-
-                if result.score < worst_eval:
-                    worst_eval = result.score
-                    worst_move = move
-                    logger.debug(f"New worst move found: {move}, score: {result.score}")
-
-            if worst_move is None:
-                logger.error("No legal moves could be evaluated")
-                raise RuntimeError("Failed to evaluate any moves")
-
-            logger.info(f"Selected worst move: {worst_move}, score: {worst_eval}")
-            return worst_move, abs(worst_eval)
-
-        finally:
+        if not process or process.poll() is not None:
+            raise RuntimeError("Failed to initialize Stockfish engine")
+            
+        # Get the current position's evaluation
+        current_eval = evaluate_position(process, board)
+        
+        # Get all legal moves
+        legal_moves = list(board.legal_moves)
+        if not legal_moves:
+            return None, 0
+            
+        # Evaluate each move
+        worst_move = None
+        worst_eval = -MATE_SCORE * 2  # Start with worst possible score
+        
+        for move in legal_moves:
+            # Make the move
+            board.push(move)
+            
             try:
-                send_command(process, "quit")
-                process.wait(timeout=1)
+                # Evaluate the resulting position
+                eval_result = evaluate_position(process, board)
+                
+                # If this is the worst move so far, save it
+                if eval_result.score < worst_eval:
+                    worst_move = move
+                    worst_eval = eval_result.score
+                    
             except Exception as e:
-                logger.error(f"Error during cleanup: {e}")
-                process.kill()
-
-    except subprocess.SubprocessError as e:
-        error_msg = f"Stockfish process error: {str(e)}\n{traceback.format_exc()}"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
+                logger.warning(f"Error evaluating move {move}: {e}")
+                # Continue with next move even if one fails
+                continue
+                
+            finally:
+                # Always undo the move
+                board.pop()
+        
+        if worst_move is None and legal_moves:
+            # If all evaluations failed, return a random move
+            import random
+            worst_move = random.choice(legal_moves)
+            worst_eval = 0  # Neutral evaluation as fallback
+            
+        return worst_move, worst_eval
+        
     except Exception as e:
-        error_msg = f"Failed to evaluate position: {str(e)}\n{traceback.format_exc()}"
+        error_msg = f"Failed to evaluate position: {str(e)}"
         logger.error(error_msg)
+        logger.error(traceback.format_exc())
         raise RuntimeError(error_msg)
+        
+    finally:
+        # Ensure process is terminated
+        if process and process.poll() is None:
+            try:
+                process.terminate()
+                process.wait(timeout=2)
+            except (subprocess.SubprocessError, OSError) as e:
+                logger.warning(f"Error terminating Stockfish process: {e}")
+                try:
+                    process.kill()
+                except:
+                    pass
