@@ -9,21 +9,18 @@ import ColorSelection from '../components/chess/ColorSelection';
 import GameOver from '../components/chess/GameOver';
 import { Toaster, toast } from 'react-hot-toast';
 import { Chess } from 'chess.js';
-import { Link } from 'react-router-dom';
 
 const GamePage = () => {
   const { gameState, makeMove, resetGame, startGame } = useChessGame();
   const { 
     fen, 
-    orientation, 
     status, 
-    moveHistory, 
-    cumulativeError, 
-    lastMoveError, 
+    moveHistory,
+    isPlayerTurn,
+    cumulativeError,
+    lastMoveError,
     playerColor,
-    showColorSelection,
-    loading,
-    isPlayerTurn
+    showColorSelection
   } = gameState;
   
   const [isMobile, setIsMobile] = useState(false);
@@ -67,6 +64,7 @@ const GamePage = () => {
     }
   }, [fen]);
   
+  
   const handleNewGame = useCallback(() => {
     resetGame();
   }, [resetGame]);
@@ -75,8 +73,6 @@ const GamePage = () => {
     startGame(color);
   }, [startGame]);
   
-  const tableHeight = useMemo(() => boardSize * 0.8, [boardSize]);
-
   if (showColorSelection) {
     return <ColorSelection onSelectColor={handleSelectColor} />;
   }
@@ -112,11 +108,8 @@ const GamePage = () => {
           <div className="w-full lg:w-48 xl:w-56">
             <GamePanel
               status={status}
-              loading={loading}
               onReset={handleNewGame}
               onCopyFEN={handleCopyFEN}
-              cumulativeError={cumulativeError}
-              lastMoveError={lastMoveError}
               isPlayerTurn={isPlayerTurn}
             />
           </div>

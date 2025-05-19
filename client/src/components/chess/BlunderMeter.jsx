@@ -28,7 +28,7 @@ const BlunderMeter = ({ score = null }) => {
   }
 
 
-  const { score: displayScore, label, color } = getBlunderLevel(score);
+  const { score: displayScore, label } = getBlunderLevel(score);
 
   return (
     <div className="w-full h-full flex flex-col">
