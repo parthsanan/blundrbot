@@ -2,8 +2,10 @@ import { Link } from "react-router-dom";
 import { Transition } from "@headlessui/react";
 import { ArrowRightIcon } from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
-import logo from './assets/logo.png';
-import boardScreenshot from './assets/board-screenshot.png';
+
+// Using public URLs for static assets
+const logo = '/assets/logo.png';
+const boardScreenshot = '/assets/board-screenshot.png';
 
 export default function LandingPage() {
   const [show, setShow] = useState(false);
@@ -17,7 +19,7 @@ export default function LandingPage() {
       <main className="flex-grow container mx-auto px-6 py-16 grid md:grid-cols-2 items-center gap-12">
         <div>
           <div className="mb-8 flex items-center gap-4">    
-              <img src={logo} alt="Logo" className="h-16"/>
+              <img src={process.env.PUBLIC_URL + logo} alt="Logo" className="h-16"/>
           <h1 className="text-6xl md:text-7xl font-extrabold">
               <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
                 Blundr
@@ -54,8 +56,8 @@ export default function LandingPage() {
           enterTo="opacity-100"
         >
           <img
-            src={boardScreenshot}
-            alt="Preview"
+            src={process.env.PUBLIC_URL + boardScreenshot}
+              alt="Preview"
             className="rounded-xl shadow-xl border border-gray-700"
           />
         </Transition>
