@@ -4,7 +4,7 @@ import logging
 import traceback
 import subprocess
 import time
-from typing import Optional, Tuple
+from typing import Optional
 from dataclasses import dataclass
 
 # Set up logging
@@ -15,17 +15,30 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def get_stockfish_path() -> str:
-    """Get the Stockfish binary path using python-chess's built-in detection."""
+    """Get the Stockfish binary path, trying multiple methods."""
     try:
         import chess.engine
-        # This will use the system's stockfish if available, or the built-in one
-        return chess.engine.STOCKFISH_BIN
-    except (ImportError, AttributeError) as e:
-        logger.error(f"Failed to initialize Stockfish: {e}")
-        raise RuntimeError("Failed to initialize Stockfish. Make sure python-chess is installed.")
+        
+        if hasattr(chess.engine, 'STOCKFISH_BIN'):
+            return chess.engine.STOCKFISH_BIN
+            
+        import shutil
+        stockfish_path = shutil.which('stockfish')
+        if stockfish_path:
+            return stockfish_path
+            
+        if os.name == 'nt':
+            return 'stockfish.exe'
+        else:
+            return 'stockfish'
+            
+    except Exception as e:
+        logger.error(f"Error finding Stockfish: {e}")
+        return 'stockfish'
 
 # Get the Stockfish path
 STOCKFISH_PATH = get_stockfish_path()
+logger.info(f"Using Stockfish at: {STOCKFISH_PATH}")
 
 # Engine configuration
 ENGINE_CONFIG = {
@@ -89,27 +102,13 @@ def initialize_engine() -> subprocess.Popen:
     """Initialize and configure the Stockfish engine."""
     global STOCKFISH_PATH
     
+    # Try to find stockfish if the current path doesn't exist
     if not os.path.exists(STOCKFISH_PATH):
-        logger.warning(f"Stockfish not found at {STOCKFISH_PATH}, trying system PATH...")
-        try:
-            import shutil
-            stockfish_path = shutil.which("stockfish")
-            if stockfish_path:
-                STOCKFISH_PATH = stockfish_path
-                logger.info(f"Using Stockfish from system PATH: {STOCKFISH_PATH}")
-            else:
-                raise FileNotFoundError("Stockfish not found in system PATH")
-        except Exception as e:
-            logger.error(f"Failed to find Stockfish: {e}")
-            raise RuntimeError("Stockfish not found. Please install Stockfish and ensure it's in your PATH or in the stockfish/ directory.")
-
+        logger.warning(f"Stockfish not found at {STOCKFISH_PATH}, trying to find it...")
+        STOCKFISH_PATH = get_stockfish_path()
     
-    if os.name != 'nt' and not os.access(STOCKFISH_PATH, os.X_OK):
-        try:
-            os.chmod(STOCKFISH_PATH, 0o755)  
-        except Exception as e:
-            logger.warning(f"Failed to make Stockfish executable: {e}")
-
+    # Prepare the command
+    command = [STOCKFISH_PATH]
     
     kwargs = {
         'stdin': subprocess.PIPE,
@@ -118,7 +117,7 @@ def initialize_engine() -> subprocess.Popen:
         'text': True,
         'bufsize': 1,
     }
-
+    
     if os.name == 'nt':
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -128,22 +127,48 @@ def initialize_engine() -> subprocess.Popen:
     else:
         kwargs['start_new_session'] = True
 
-    logger.info(f"Starting Stockfish from: {STOCKFISH_PATH}")
-    try:
-        process = subprocess.Popen(
-            [STOCKFISH_PATH],
-            **kwargs
-        )
-        if process.poll() is not None:
-            raise RuntimeError("Stockfish process terminated immediately")
-        return process
+    logger.info(f"Starting Stockfish with command: {' '.join(command)}")
     
+    try:
+        # Try to start the process
+        process = subprocess.Popen(command, **kwargs)
+        
+        # Test if the process started successfully
+        if process.poll() is not None:
+            _, stderr = process.communicate()
+            raise RuntimeError(f"Stockfish process terminated immediately. Error: {stderr}")
+            
+        # Test if the process responds to UCI
+        process.stdin.write("uci\n")
+        process.stdin.flush()
+        
+        # Wait for a response with a timeout
+        start_time = time.time()
+        while time.time() - start_time < 5:  # 5 second timeout
+            if process.stdout and process.stdout.readable():
+                line = process.stdout.readline().strip()
+                if line == 'uciok':
+                    break
+                elif 'error' in line.lower():
+                    raise RuntimeError(f"Stockfish error: {line}")
+            time.sleep(0.1)
+        else:
+            raise RuntimeError("Stockfish did not respond to UCI command")
+            
+        logger.info("Stockfish initialized successfully")
+        return process
+        
     except Exception as e:
         error_msg = f"Failed to start Stockfish: {e}"
         logger.error(error_msg)
+        
+        # Provide helpful error message
         if os.name != 'nt':
-            error_msg += ("\n\nOn Linux, you may need to install Stockfish first. "
-                         "Try: sudo apt-get install stockfish")
+            error_msg += ("\n\nIf you're running locally, you may need to install Stockfish:\n"
+                         "  Ubuntu/Debian: sudo apt-get install stockfish\n"
+                         "  MacOS: brew install stockfish\n\n"
+                         "Make sure it's in your PATH or specify the full path.")
+        
         raise RuntimeError(error_msg)
 
     send_command(process, "uci")
