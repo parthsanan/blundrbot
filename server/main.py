@@ -1,74 +1,58 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from pydantic import BaseModel
+from enum import Enum
+from typing import Optional
 from app.engine.evaluator import get_worst_move
 import chess
-import traceback
-from enum import Enum
-from typing import Literal
+import logging
+import os
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="BlundrBot API",
-    description="Chess API that suggests the worst possible legal move",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    description="API for finding the worst possible chess moves",
+    version="1.0.0"
 )
 
-@app.get("/", include_in_schema=False)
-async def root():
-    return {
-        "message": "Welcome to BlundrBot API. Visit /docs for the API documentation.",
-        "documentation": "/docs",
-        "version": "1.0.0"
-    }
-
-# Add CORS middleware
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # React dev server
-        "http://localhost:8000",  # FastAPI server (for Swagger UI)
-        "https://blundrbot.onrender.com",  # Production frontend
-    ],
-    allow_origin_regex=r"https?://localhost(:[0-9]+)?",  # Allow any localhost port
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"]
 )
 
-# Add middleware to handle preflight requests
-@app.middleware("http")
-async def add_cors_headers(request, call_next):
-    if request.method == "OPTIONS":
-        from fastapi.responses import Response
-        response = Response()
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "*"
-        return response
-    
-    response = await call_next(request)
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    return response
-
 class GameStatus(str, Enum):
+    """Enum representing possible game statuses."""
     CHECKMATE = "checkmate"
     STALEMATE = "stalemate"
-    DRAW_INSUFFICIENT = "draw_insufficient_material"
-    DRAW_FIFTY = "draw_fifty_moves"
-    DRAW_REPETITION = "draw_repetition"
+    INSUFFICIENT_MATERIAL = "insufficient_material"
+    FIFTY_MOVES = "fifty_moves"
+    REPETITION = "repetition"
     CHECK = "check"
     ONGOING = "ongoing"
 
-class FENRequest(BaseModel):
+class MoveRequest(BaseModel):
+    """Request model for the worst-move endpoint."""
     fen: str
 
 class MoveResponse(BaseModel):
-    move: str
-    game_status: GameStatus
-    error_score: int
+    """Response model for the worst-move endpoint."""
+    move: Optional[str] = None
+    san: Optional[str] = None
+    score: int
+    game_over: bool
+    status: str
+    game_status: Optional[GameStatus] = None
 
 def get_game_status(board: chess.Board) -> GameStatus:
     """Determine the current game status after a move."""
@@ -77,71 +61,94 @@ def get_game_status(board: chess.Board) -> GameStatus:
     elif board.is_stalemate():
         return GameStatus.STALEMATE
     elif board.is_insufficient_material():
-        return GameStatus.DRAW_INSUFFICIENT
+        return GameStatus.INSUFFICIENT_MATERIAL
     elif board.is_fifty_moves():
-        return GameStatus.DRAW_FIFTY
+        return GameStatus.FIFTY_MOVES
     elif board.is_repetition():
-        return GameStatus.DRAW_REPETITION
+        return GameStatus.REPETITION
     elif board.is_check():
         return GameStatus.CHECK
     return GameStatus.ONGOING
 
+@app.get("/", include_in_schema=False)
+async def root():
+    """Root endpoint with basic API information."""
+    return {
+        "status": "ok",
+        "message": "BlundrBot API is running",
+        "endpoints": {
+            "POST /worst-move": "Get the worst move for a given FEN position"
+        }
+    }
+
 @app.post("/worst-move", response_model=MoveResponse)
-async def worst_move_endpoint(request: FENRequest) -> MoveResponse:
-    try:
-        board = chess.Board(request.fen)
-    except ValueError:
-        raise HTTPException(
-            status_code=400, 
-            detail="Invalid FEN string provided."
-        )
-
-    if board.is_game_over():
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Game is already over. Result: {board.result()}"
-        )
-
-    legal_moves = list(board.legal_moves)
-    if not legal_moves:
-        raise HTTPException(
-            status_code=400, 
-            detail="No legal moves available in this position."
-        )
-
-    try:
-        move, worst_eval = get_worst_move(board)
-        print(f"DEBUG - Move: {move}, Eval: {worst_eval}")  # Debug log
+async def worst_move(request: MoveRequest) -> MoveResponse:
+    """
+    Find the worst legal move for the given FEN position.
+    
+    Args:
+        request: MoveRequest containing the FEN string
         
-        if not move:
-            raise HTTPException(
-                status_code=500, 
-                detail="Failed to evaluate moves."
+    Returns:
+        MoveResponse: Contains the worst move information
+    """
+    try:
+        # Validate FEN
+        try:
+            board = chess.Board(request.fen)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=f"Invalid FEN: {str(e)}")
+        
+        # Get the worst move
+        move, score = get_worst_move(board)
+        
+        # Get game status
+        game_status = get_game_status(board)
+        game_over = board.is_game_over()
+        
+        if move is None:
+            return MoveResponse(
+                move=None,
+                san=None,
+                score=0,
+                game_over=game_over,
+                status="no_moves",
+                game_status=game_status
             )
             
-        if move not in legal_moves:
-            raise HTTPException(
-                status_code=500, 
-                detail="Engine returned an illegal move."
-            )
-        
-        # Make the move to determine game status
-        board.push(move)
-        game_status = get_game_status(board)
-        print(f"DEBUG - Game status: {game_status}")  # Debug log
-        
-        response = MoveResponse(
+        return MoveResponse(
             move=move.uci(),
-            game_status=game_status,
-            error_score=worst_eval  # Removed abs() since we're already doing it in get_worst_move
+            san=board.san(move),
+            score=score,
+            game_over=False,
+            status="success",
+            game_status=game_status
         )
-        print(f"DEBUG - Response: {response}")  # Debug log
-        return response
         
     except Exception as e:
-        print(f"ERROR in worst_move_endpoint: {str(e)}")  # Debug log
-        print(traceback.format_exc())  # Full traceback
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Internal server error: {str(e)}"
+        logger.error(f"Error in /worst-move: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Add CORS headers for OPTIONS requests
+@app.middleware("http")
+async def add_cors_headers(request: Request, call_next):
+    """Middleware to handle CORS preflight requests."""
+    if request.method == "OPTIONS":
+        return Response(
+            status_code=200,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+            }
         )
+    
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
+
+# Run the application with uvicorn directly for development
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
