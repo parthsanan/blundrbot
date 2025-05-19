@@ -23,12 +23,10 @@ const GamePage = () => {
     showColorSelection
   } = gameState;
   
-  const [isMobile, setIsMobile] = useState(false);
   const [showMobileMessage, setShowMobileMessage] = useState(false);
   
   const checkIfMobile = useCallback(() => {
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    setIsMobile(isMobileDevice);
     setShowMobileMessage(isMobileDevice);
   }, []);
   
