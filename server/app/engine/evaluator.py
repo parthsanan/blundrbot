@@ -14,8 +14,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Get the absolute path to the stockfish executable
-STOCKFISH_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "stockfish", "stockfish.exe")
+def get_stockfish_path() -> str:
+    """Get the Stockfish binary path using python-chess's built-in detection."""
+    try:
+        import chess.engine
+        # This will use the system's stockfish if available, or the built-in one
+        return chess.engine.STOCKFISH_BIN
+    except (ImportError, AttributeError) as e:
+        logger.error(f"Failed to initialize Stockfish: {e}")
+        raise RuntimeError("Failed to initialize Stockfish. Make sure python-chess is installed.")
+
+# Get the Stockfish path
+STOCKFISH_PATH = get_stockfish_path()
 
 # Engine configuration
 ENGINE_CONFIG = {
@@ -77,11 +87,30 @@ def parse_evaluation(info_line: str) -> Optional[EvalResult]:
 
 def initialize_engine() -> subprocess.Popen:
     """Initialize and configure the Stockfish engine."""
+    global STOCKFISH_PATH
+    
     if not os.path.exists(STOCKFISH_PATH):
-        raise RuntimeError(f"Stockfish engine not found at {STOCKFISH_PATH}")
+        logger.warning(f"Stockfish not found at {STOCKFISH_PATH}, trying system PATH...")
+        try:
+            import shutil
+            stockfish_path = shutil.which("stockfish")
+            if stockfish_path:
+                STOCKFISH_PATH = stockfish_path
+                logger.info(f"Using Stockfish from system PATH: {STOCKFISH_PATH}")
+            else:
+                raise FileNotFoundError("Stockfish not found in system PATH")
+        except Exception as e:
+            logger.error(f"Failed to find Stockfish: {e}")
+            raise RuntimeError("Stockfish not found. Please install Stockfish and ensure it's in your PATH or in the stockfish/ directory.")
 
-    # Prepare subprocess startup info
-    startupinfo = None
+    
+    if os.name != 'nt' and not os.access(STOCKFISH_PATH, os.X_OK):
+        try:
+            os.chmod(STOCKFISH_PATH, 0o755)  
+        except Exception as e:
+            logger.warning(f"Failed to make Stockfish executable: {e}")
+
+    
     kwargs = {
         'stdin': subprocess.PIPE,
         'stdout': subprocess.PIPE,
@@ -90,27 +119,33 @@ def initialize_engine() -> subprocess.Popen:
         'bufsize': 1,
     }
 
-    if os.name == 'nt':  # Windows
+    if os.name == 'nt':
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
+        kwargs['startupinfo'] = startupinfo
         kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
-    else:  # Unix/Linux/Mac
-        # Use os.devnull to prevent any console output
-        kwargs.update({
-            'start_new_session': True,
-            'stdin': subprocess.PIPE,
-            'stdout': subprocess.PIPE,
-            'stderr': subprocess.PIPE
-        })
+    else:
+        kwargs['start_new_session'] = True
 
+    logger.info(f"Starting Stockfish from: {STOCKFISH_PATH}")
     try:
-        process = subprocess.Popen([STOCKFISH_PATH], **kwargs)
+        process = subprocess.Popen(
+            [STOCKFISH_PATH],
+            **kwargs
+        )
+        if process.poll() is not None:
+            raise RuntimeError("Stockfish process terminated immediately")
+        return process
+    
     except Exception as e:
-        logger.error(f"Failed to start Stockfish: {e}")
-        raise RuntimeError(f"Failed to start Stockfish: {e}")
+        error_msg = f"Failed to start Stockfish: {e}"
+        logger.error(error_msg)
+        if os.name != 'nt':
+            error_msg += ("\n\nOn Linux, you may need to install Stockfish first. "
+                         "Try: sudo apt-get install stockfish")
+        raise RuntimeError(error_msg)
 
-    # Initialize UCI
     send_command(process, "uci")
     while True:
         line = read_line(process)
@@ -121,7 +156,6 @@ def initialize_engine() -> subprocess.Popen:
         if line == "uciok":
             break
 
-    # Configure engine
     for option, value in ENGINE_CONFIG.items():
         send_command(process, f"setoption name {option} value {value}")
 
