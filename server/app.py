@@ -46,6 +46,9 @@ class MoveResponse(BaseModel):
     game_over: bool
     status: str
     game_status: Optional[GameStatus] = None
+    
+class MoveRequest(BaseModel):
+    fen: str
 
 def evaluate_board(board: chess.Board) -> int:
     """Simple evaluation function that only considers material."""
