@@ -23,19 +23,13 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for now
-    allow_credentials=False,  # Disable credentials for now
+    allow_origins=["http://localhost:3000", "https://blundrbot.vercel.app"],  
+    allow_credentials=False,  
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
     max_age=600
 )
-
-# Simple endpoint to test CORS
-@app.get("/test-cors")
-async def test_cors():
-    return {"message": "CORS is working!"}
-
 class GameStatus(str, Enum):
     CHECKMATE = "checkmate"
     STALEMATE = "stalemate"
@@ -44,9 +38,6 @@ class GameStatus(str, Enum):
     REPETITION = "repetition"
     CHECK = "check"
     ONGOING = "ongoing"
-
-class MoveRequest(BaseModel):
-    fen: str
 
 class MoveResponse(BaseModel):
     move: Optional[str] = None

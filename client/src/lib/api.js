@@ -16,7 +16,6 @@ const api = axios.create({
 
 api.interceptors.request.use(
   config => {
-    console.log('Making request to:', config.url);
     return config;
   },
   error => {
@@ -45,9 +44,7 @@ api.interceptors.response.use(
 
 export const makeBlunderMove = async (fen) => {
   try {
-    console.log('Making request to /worst-move with FEN:', fen);
     const response = await api.post('/worst-move', { fen });
-    console.log('API Response:', response.data);
     return response;
   } catch (error) {
     console.error('API Error in makeBlunderMove:', {

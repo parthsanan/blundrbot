@@ -1,36 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#111827" />
-  <meta name="description" content="Improve your chess skills with BlundrBot - Play against an AI opponent and receive instant feedback on your moves." />
-  <meta name="keywords" content="chess, AI, blunder detection, chess game, learn chess, chess analysis" />
-  <meta name="author" content="BlundrBot" />
-  <meta property="og:title" content="BlundrBot - Improve Your Chess Game with AI Analysis" />
-  <meta property="og:description" content="Play against our advanced chess AI and receive instant feedback on your moves. Learn from your mistakes and become a better player with every game." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://blundrbot.app" />
-  <meta name="twitter:card" content="summary_large_image" />
   
+  <!-- Primary Meta Tags -->
+  <title>BlundrBot - Can You Lose??</title>
+  <meta name="title" content="BlundrBot - Can You Lose?">
+  <meta name="description" content="Challenge BlundrBot, the bot that makes the worst possible moves. Can you lose to it? Test your chess skills in this unique twist on the classic game.">
+  <meta name="keywords" content="chess, AI, blunder, chess game, worst chess bot, chess challenge, blundr bot, chess puzzle, learn chess, chess training">
+  <meta name="author" content="BlundrBot">
+  <meta name="robots" content="index, follow">
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="favicon.png">
   <link rel="manifest" href="site.webmanifest">
+  <meta name="msapplication-TileColor" content="#111827">
   
-  <!-- Fonts -->
+  <!-- Preconnect to external domains -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <title>BlundrBot – Can You Lose?</title>
+  <!-- PWA -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BlundrBot">
+  
+  <!-- Theme Color for different platforms -->
+  <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)">
 </head>
 
 <body class="bg-gray-900 text-white overflow-x-hidden">
-  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <noscript>
+    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; align-items: center; background: #111827; color: white; padding: 2rem; text-align: center; z-index: 9999;">
+      <div>
+        <h1 style="font-size: 1.5rem; margin-bottom: 1rem;">JavaScript is required to run BlundrBot</h1>
+        <p>Please enable JavaScript in your browser settings to play the game.</p>
+      </div>
+    </div>
+  </noscript>
   <div id="root"></div>
 </body>
-
 </html>
