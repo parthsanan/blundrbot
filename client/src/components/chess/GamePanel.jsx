@@ -32,7 +32,7 @@ const GamePanel = ({
       await navigator.clipboard.writeText(pgn);
       toast.success('PGN copied!', toastStyle);
     } catch (err) {
-      logger.error('Error copying PGN:', { error: err.message });
+      console.error('Error copying PGN:', { error: err.message });
       toast.error('Failed to copy PGN', toastStyle);
     }
   }, []);

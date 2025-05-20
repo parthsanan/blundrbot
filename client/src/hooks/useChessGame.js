@@ -75,7 +75,7 @@ export const useChessGame = () => {
           }
         }
       }).catch(error => {
-        logger.error('Error in bot move:', { error: error.message });
+        console.error('Error in bot move:', { error: error.message });
         setGameState(prev => ({
           ...prev,
           loading: false,
@@ -159,7 +159,7 @@ export const useChessGame = () => {
       
       return true;
     } catch (err) {
-      logger.error('Error making move', { error: error.message, move: move.san });;
+      console.error('Error making move', { error: err.message, move: move.san });
       setGameState(prev => ({
         ...prev,
         loading: false,
