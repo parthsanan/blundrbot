@@ -18,6 +18,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.12.1",
+    "http-proxy-middleware": "^3.0.5",
     "lucide-react": "^0.511.0",
     "react": "^18.2.0",
     "react-chessboard": "^2.1.0",
@@ -30,10 +31,12 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set PORT=3000 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "start:prod": "set PORT=3000 && set REACT_APP_API_URL=https://blundrbot-backend.onrender.com react-scripts start",
+    "start:local": "set PORT=3000 && set REACT_APP_API_URL=http://localhost:8000 react-scripts start"
   },
   "eslintConfig": {
     "extends": [
