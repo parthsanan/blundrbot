@@ -23,19 +23,6 @@ const GamePage = () => {
     showColorSelection
   } = gameState;
   
-  const [showMobileMessage, setShowMobileMessage] = useState(false);
-  
-  const checkIfMobile = useCallback(() => {
-    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    setShowMobileMessage(isMobileDevice);
-  }, []);
-  
-  useEffect(() => {
-    checkIfMobile();
-    window.addEventListener('resize', checkIfMobile);
-    return () => window.removeEventListener('resize', checkIfMobile);
-  }, [checkIfMobile]);
-  
   const isGameOver = useMemo(() => 
     ['checkmate', 'stalemate', 'draw', 'game_over'].includes(status)
   , [status]);
@@ -62,7 +49,6 @@ const GamePage = () => {
     }
   }, [fen]);
   
-  
   const handleNewGame = useCallback(() => {
     resetGame();
   }, [resetGame]);
@@ -84,22 +70,6 @@ const GamePage = () => {
           onNewGame={handleNewGame} 
           isPlayerWinner={isPlayerWinner} 
         />
-      )}
-      {showMobileMessage && (
-        <div className="fixed inset-0 bg-black flex items-center justify-center z-50 p-4">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 max-w-md w-full shadow-2xl">
-            <h2 className="text-2xl font-bold text-white mb-4 text-center">Mobile Support Coming Soon</h2>
-            <p className="text-zinc-300 mb-6 text-center">
-              We're working on mobile support! For the best experience, please use a desktop or tablet.
-            </p>
-            <button
-              onClick={() => setShowMobileMessage(false)}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-lg transition-colors text-lg"
-            >
-              Continue Anyway
-            </button>
-          </div>
-        </div>
       )}
       <div className="px-4 py-4 lg:pl-64 lg:pr-4">
         <div className="flex flex-col lg:flex-row gap-4">

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Transition } from "@headlessui/react";
 import { ArrowRightIcon } from "@heroicons/react/20/solid";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // Using public URLs for static assets
 const logo = '/assets/logo.png';
@@ -9,21 +9,42 @@ const boardScreenshot = '/assets/board-screenshot.png';
 
 export default function LandingPage() {
   const [show, setShow] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const checkIfMobile = useCallback(() => {
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    setIsMobile(isMobileDevice);
+  }, []);
 
   useEffect(() => {
-    setTimeout(() => setShow(true), 100);
-  }, []);
+    checkIfMobile();
+    setShow(true);
+    window.addEventListener('resize', checkIfMobile);
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, [checkIfMobile]);
+
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+        <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 max-w-md w-full text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">Mobile Support Coming Soon</h2>
+          <p className="text-zinc-300">
+            We're working on mobile support! For the best experience, please use a desktop or tablet.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       <main className="flex-grow container mx-auto px-6 py-16 grid md:grid-cols-2 items-center gap-12">
         <div>
           <div className="mb-8 flex items-center gap-4">    
-              <img src={process.env.PUBLIC_URL + logo} alt="Logo" className="h-16"/>
-          <h1 className="text-6xl md:text-7xl font-extrabold">
+            <img src={process.env.PUBLIC_URL + logo} alt="Logo" className="h-16"/>
+            <h1 className="text-6xl md:text-7xl font-extrabold">
               <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
                 Blundr
-
               </span>
               <span className="text-white">Bot</span>
             </h1>
@@ -39,7 +60,7 @@ export default function LandingPage() {
             </h2>
           </Transition>
           <p className="text-gray-300 mb-8">
-            Challenge yourself in reverse. It’s not about winning — it’s about losing better than the bot!
+            Challenge yourself in reverse. It's not about winning — it's about losing better than the bot!
           </p>
           <Link
             to="/game"
@@ -57,7 +78,7 @@ export default function LandingPage() {
         >
           <img
             src={process.env.PUBLIC_URL + boardScreenshot}
-              alt="Preview"
+            alt="Preview"
             className="rounded-xl shadow-xl border border-gray-700"
           />
         </Transition>
