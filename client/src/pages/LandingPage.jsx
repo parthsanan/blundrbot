@@ -103,15 +103,12 @@ export default function LandingPage() {
               <Link
                 to="/puzzles"
                 className="inline-flex items-center gap-2 bg-pink-600 hover:bg-pink-700 px-6 py-3 rounded-xl text-lg font-semibold transition shadow-lg"
-              >
+              > 
                 Try Puzzles <PuzzlePieceIcon className="w-5 h-5" />
               </Link>
             </div>
           
             <img src={process.env.PUBLIC_URL + '/assets/samplePuzzle.png'} alt="Puzzle Screenshot" className="w-full h-auto mb-4" />
-            <div className="text-center text-gray-400 text-sm">
-              Score points by identifying the most catastrophic moves!
-            </div>
           </div>
         </div>
       </main>
