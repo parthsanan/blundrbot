@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useChessGame } from '../hooks/useChessGame';
 import Header from '../components/layout/Header';
 import Chessboard from '../components/chess/Chessboard';
@@ -63,7 +63,7 @@ const GamePage = () => {
   
   return (
     <div className="min-h-screen bg-[#1E1E1E]">
-      <Header />
+      <Header activePage="game" />
       {isGameOver && (
         <GameOver 
           status={status} 

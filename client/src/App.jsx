@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import LandingPage from './pages/LandingPage';
 import GamePage from './pages/GamePage';
+import PuzzlesPage from './pages/PuzzlesPage';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/game" element={<GamePage />} />
+          <Route path="/puzzles" element={<PuzzlesPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

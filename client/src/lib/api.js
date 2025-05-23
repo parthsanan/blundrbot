@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NODE_ENV === 'development' 
+export const API_BASE_URL = process.env.NODE_ENV === 'development' 
   ? '/api'
   : (process.env.REACT_APP_API_URL || 'https://blundrbot-backend.onrender.com');
 
