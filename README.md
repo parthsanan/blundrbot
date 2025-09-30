@@ -1,6 +1,5 @@
-# BlundrBot
-
-BlundrBot is a unique chess application that flips traditional chess on its head. Instead of playing to win, you'll face off against an AI that makes the worst possible moves, challenging you to capitalize on its mistakes and secure victory.
+# [BlundrBot🔗](https://blundrbot.vercel.app/)
+A unique chess application that flips traditional chess on its head. Instead of playing to win, you'll face off against an AI that makes the worst possible moves, challenging you to capitalize on its mistakes and secure victory.
 
 ## Features
 
