@@ -1,11 +1,11 @@
 # [BlundrBot🔗](https://blundrbot.vercel.app/)
-A unique chess application that flips traditional chess on its head. Instead of playing to win, you'll face off against an AI that makes the worst possible moves, challenging you to capitalize on its mistakes and secure victory.
+A unique chess application that flips traditional chess on its head. Instead of playing to win, you'll face off to make the worst possible moves, challenging you like never before.
 
 ## Features
 
 ### Play Against BlundrBot
 
-Test your chess skills against an AI that intentionally makes suboptimal moves. Can you maintain your composure and win against an opponent that's trying to lose?
+Test your chess skills against an opponent that intentionally makes suboptimal moves. Can you maintain your composure and win against an opponent that's trying to lose?
 
 ### Puzzle Mode
 
