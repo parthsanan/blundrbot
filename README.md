@@ -1,4 +1,5 @@
 # [BlundrBot🔗](https://blundrbot.vercel.app/)
+
 A unique chess application that flips traditional chess on its head. Instead of playing to win, you'll face off to make the worst possible moves, challenging you like never before.
 
 ## Features
@@ -33,7 +34,7 @@ Sharpen your tactical awareness by solving chess puzzles where the goal is to fi
 3. Set up the backend:
 
    ```bash
-   cd ../server
+   cd server
    pip install -r requirements.txt
    ```
 
@@ -43,7 +44,7 @@ Sharpen your tactical awareness by solving chess puzzles where the goal is to fi
 
    ```bash
    cd server
-   uvicorn main:app --reload
+   python -m uvicorn app:app --host 0.0.0.0 --port 8000 --reload
    ```
 
 2. Start the frontend development server:
