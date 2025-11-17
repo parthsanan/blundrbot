@@ -1,135 +1,101 @@
-import React, { useCallback, useState, useMemo } from 'react';
-import { Chessboard as ReactChessboard } from 'react-chessboard';
-import { Chess } from 'chess.js';
+import React, { useState } from "react";
+import { Chessboard as ReactChessboard } from "react-chessboard";
+import { Chess } from "chess.js";
 
-const CustomChessboard = ({ 
-  position, 
-  onPieceDrop, 
-  orientation, 
+const CustomChessboard = ({
+  position,
+  onPieceDrop,
+  orientation,
   boardWidth,
-  gameState
+  gameState,
 }) => {
+  // Track which square is selected and what moves are possible
   const [selectedSquare, setSelectedSquare] = useState(null);
-  const [legalMoves, setLegalMoves] = useState([]);
-  const [hoveredSquare, setHoveredSquare] = useState(null);
+  const [possibleMoves, setPossibleMoves] = useState([]);
 
-  const handleMove = useCallback((from, to) => {
-  if (gameState?.loading || !gameState?.isPlayerTurn) return false;
-  
-  const game = new Chess(position);
-  const moves = game.moves({ square: from, verbose: true });
-  const moveObj = moves.find(move => move.to === to);
-  
-  if (moveObj) {
-    const move = {
-      from,
-      to,
-      promotion: moveObj.promotion || 'q'
-    };
-    const success = onPieceDrop(move);
-    if (success) {
+  // When a square is clicked
+  const handleSquareClick = (square) => {
+    // Don't do anything if game is loading or not player's turn
+    if (gameState?.loading || !gameState?.isPlayerTurn) return;
+
+    // If no square is selected yet, select this one
+    if (!selectedSquare) {
+      const chess = new Chess(position);
+      const moves = chess.moves({ square, verbose: true });
+      if (moves.length > 0) {
+        setSelectedSquare(square);
+        setPossibleMoves(moves);
+      }
+      return;
+    }
+
+    // If clicking the same square, deselect it
+    if (selectedSquare === square) {
       setSelectedSquare(null);
-      setLegalMoves([]);
+      setPossibleMoves([]);
+      return;
     }
-    return success;
-  }
-  return false;
-}, [position, onPieceDrop, gameState?.loading, gameState?.isPlayerTurn]);
 
-const handleSquareClick = useCallback((square) => {
-  if (gameState?.loading || !gameState?.isPlayerTurn) return;
-
-  if (!selectedSquare) {
-    const game = new Chess(position);
-    const moves = game.moves({ square, verbose: true });
-    if (moves.length > 0) {
-      setSelectedSquare(square);
-      setLegalMoves(moves);
-    }
-    return;
-  }
-
-  if (selectedSquare === square) {
-    setSelectedSquare(null);
-    setLegalMoves([]);
-    return;
-  }
-
-  const moveMade = handleMove(selectedSquare, square);
-  if (!moveMade) {
-    const game = new Chess(position);
-    const newMoves = game.moves({ square, verbose: true });
-    if (newMoves.length > 0) {
-      setSelectedSquare(square);
-      setLegalMoves(newMoves);
+    // Try to make a move from selected square to clicked square
+    const move = possibleMoves.find((m) => m.to === square);
+    if (move) {
+      const success = onPieceDrop({
+        from: selectedSquare,
+        to: square,
+        promotion: "q",
+      });
+      if (success) {
+        setSelectedSquare(null);
+        setPossibleMoves([]);
+      }
     } else {
-      setSelectedSquare(null);
-      setLegalMoves([]);
+      // If not a valid move, try selecting the new square instead
+      const chess = new Chess(position);
+      const moves = chess.moves({ square, verbose: true });
+      if (moves.length > 0) {
+        setSelectedSquare(square);
+        setPossibleMoves(moves);
+      } else {
+        setSelectedSquare(null);
+        setPossibleMoves([]);
+      }
     }
-  }
-}, [selectedSquare, position, handleMove, gameState?.loading, gameState?.isPlayerTurn]);
+  };
 
-const handlePieceDrop = useCallback((sourceSquare, targetSquare) => {
-  return handleMove(sourceSquare, targetSquare);
-}, [handleMove]);
+  // When a piece is dragged and dropped
+  const handlePieceDrop = (from, to) => {
+    if (gameState?.loading || !gameState?.isPlayerTurn) return false;
 
-  const handleSquareHover = useCallback((square) => {
-    setHoveredSquare(square);
-  }, []);
+    const chess = new Chess(position);
+    const moves = chess.moves({ square: from, verbose: true });
+    const move = moves.find((m) => m.to === to);
 
-  const customSquareStyles = useMemo(() => {
-    const styles = {};
-
-    legalMoves.forEach(move => {
-      styles[move.to] = move.captured
-        ? {
-            boxShadow: 'inset 0 0 0 3px rgba(255, 0, 0, 0.6)',
-            background: 'rgba(255, 0, 0, 0.2)'
-          }
-        : {
-            background: 'radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 25%, transparent 26%)'
-          };
-    });
-
-    if (hoveredSquare) {
-      styles[hoveredSquare] = {
-        background: 'rgba(20, 85, 255, 0.2)'
-      };
+    if (move) {
+      return onPieceDrop({ from, to, promotion: "q" });
     }
+    return false;
+  };
 
-    return styles;
-  }, [legalMoves, hoveredSquare]);
+  // Highlight legal move squares
+  const squareStyles = {};
+  possibleMoves.forEach((move) => {
+    squareStyles[move.to] = {
+      background:
+        "radial-gradient(circle, rgba(0,0,0,.1) 25%, transparent 25%)",
+    };
+  });
 
   return (
-    <div className="chessboard-container" style={{
-      width: boardWidth,
-      height: boardWidth,
-      margin: '0 auto',
-      position: 'relative',
-      borderRadius: '8px',
-      overflow: 'hidden',
-    }}>
+    <div style={{ width: boardWidth, height: boardWidth }}>
       <ReactChessboard
         position={position}
         onPieceDrop={handlePieceDrop}
         onSquareClick={handleSquareClick}
-        onMouseOverSquare={handleSquareHover}
         boardWidth={boardWidth}
-        showBoardNotation={true}
-        animationDuration={200}
         boardOrientation={orientation}
-        boardStyle={{
-          width: '100%',
-          height: '100%',
-          borderRadius: '8px',
-        }}
-        customDarkSquareStyle={{ 
-          backgroundColor: '#7B61FF',
-        }}
-        customLightSquareStyle={{ 
-          backgroundColor: '#E8E9FF',
-        }}
-        customSquareStyles={customSquareStyles}
+        customSquareStyles={squareStyles}
+        customDarkSquareStyle={{ backgroundColor: "#7B61FF" }}
+        customLightSquareStyle={{ backgroundColor: "#E8E9FF" }}
       />
     </div>
   );

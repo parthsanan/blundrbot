@@ -1,8 +1,13 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import LandingPage from './pages/LandingPage';
-import GamePage from './pages/GamePage';
-import PuzzlesPage from './pages/PuzzlesPage';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import LandingPage from "./pages/LandingPage";
+import GamePage from "./pages/GamePage";
+import PuzzlesPage from "./pages/PuzzlesPage";
 
 function App() {
   return (

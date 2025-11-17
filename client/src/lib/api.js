@@ -1,57 +1,22 @@
-import axios from 'axios';
+import axios from "axios";
 
-export const API_BASE_URL = process.env.NODE_ENV === 'development' 
-  ? '/api'
-  : (process.env.REACT_APP_API_URL || 'https://blundrbot-backend.onrender.com');
+// Use local proxy in development, production URL otherwise
+const API_URL =
+  process.env.NODE_ENV === "development"
+    ? "/api"
+    : "https://blundrbot-backend.onrender.com";
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  },
-  withCredentials: false,
-  timeout: 10000
-});
-
-api.interceptors.request.use(
-  config => {
-    return config;
-  },
-  error => {
-    console.error('Request error:', error);
-    return Promise.reject(error);
-  }
-);
-
-api.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response) {
-      console.error('API Error Response:', {
-        status: error.response.status,
-        data: error.response.data,
-        headers: error.response.headers
-      });
-    } else if (error.request) {
-      console.error('API Request Error:', error.request);
-    } else {
-      console.error('API Error:', error.message);
-    }
-    return Promise.reject(error);
-  }
-);
-
+// Make a request to get the bot's worst move
 export const makeBlunderMove = async (fen) => {
   try {
-    const response = await api.post('/worst-move', { fen });
+    const response = await axios.post(
+      `${API_URL}/worst-move`,
+      { fen },
+      { timeout: 10000 } // 10 second timeout
+    );
     return response;
   } catch (error) {
-    console.error('API Error in makeBlunderMove:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status
-    });
+    console.error("Failed to get bot move:", error.message);
     throw error;
   }
 };

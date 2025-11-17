@@ -1,0 +1,82 @@
+[
+    {
+        "id": 1,
+        "fen": "3qkb2/pppn1pp1/3pp1n1/PP3r1r/N1P2P2/8/3PP1PP/RNBQKB1R w KQ - 0 1",
+        "explanation": "g4 allows Qh4#",
+        "worstMove": {
+            "from": "g2",
+            "to": "g4",
+            "explanation": "Qh4#"
+        }
+    },
+    {
+        "id": 2,
+        "fen": "8/5p1k/2p3p1/3p1PQp/3P3P/4PPK1/8/1q6 w - - 0 1",
+        "explanation": "Kf4 allows Qb8#",
+        "worstMove": {
+            "from": "g3",
+            "to": "f4",
+            "explanation": "Qb8#"
+        }
+    },
+    {
+        "id": 3,
+        "fen": "5k1K/RR1RRPR1/4rP2/5P1R/8/8/2q2P2/8 w - - 0 1",
+        "explanation": "fxe6 allows Qh7+, then either Rxh7 or Kh7 leads to stalemate",
+        "worstMove": {
+            "from": "f5",
+            "to": "e6",
+            "explanation": "Leads to stalemate after Qh7+"
+        }
+    },
+    {
+        "id": 4,
+        "fen": "rnbqkbnr/pppp1ppp/8/4P3/6n1/5P2/P1PNPPPP/R1BQKBNR w KQkq - 0 1",
+        "explanation": "h3 allows Ne3, fxe3, Qh4#",
+        "worstMove": {
+            "from": "h2",
+            "to": "h3",
+            "explanation": "Ne3, fxe3, Qh4#"
+        }
+    },
+    {
+        "id": 5,
+        "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1",
+        "explanation": "Ba6 allows bxa6, losing the bishop",
+        "worstMove": {
+            "from": "f1",
+            "to": "a6",
+            "explanation": "bxa6 loses the bishop"
+        }
+    },
+    {
+        "id": 6,
+        "fen": "7k/8/8/1K6/8/8/8/5Q2 w - - 0 1",
+        "explanation": "Qf7 leads to Stalemate",
+        "worstMove": {
+            "from": "f1",
+            "to": "f7",
+            "explanation": "Leads to stalemate"
+        }
+    },
+    {
+        "id": 7,
+        "fen": "3r1k2/1p3p1p/1b6/2nR1N2/pN5P/P4P2/1P6/5K2 b - - 0 1",
+        "explanation": "Ba7 allows Red8# on the next move",
+        "worstMove": {
+            "from": "b6",
+            "to": "a7",
+            "explanation": "Red8# (White can now play Rd8#)"
+        }
+    },
+    {
+        "id": 8,
+        "fen": "r5k1/3b4/8/3p4/8/5B1P/3R2PP/6K1 w - - 0 1",
+        "explanation": "1...Ra1+ 2.Rf1 Rxf1 3.Kxf1 Bxh3 4.gxh3 leads to a draw because of the bishop and wrong color rook pawn vs king endgame",
+        "worstMove": {
+            "from": "d2",
+            "to": "f2",
+            "explanation": "Leads to draw"
+        }
+    }
+]

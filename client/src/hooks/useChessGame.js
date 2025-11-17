@@ -1,186 +1,115 @@
-import { useState, useRef, useCallback } from 'react';
-import { Chess } from 'chess.js';
-import { INITIAL_FEN } from '../lib/constants';
-import { makeBlunderMove } from '../lib/api';
-import { toast } from 'react-hot-toast';
+import { useState, useRef } from "react";
+import { Chess } from "chess.js";
+import { makeBlunderMove } from "../lib/api";
 
-const toastStyle = {
-  style: {
-    background: '#1f2937',
-    color: '#f3f4f6',
-    border: '1px solid #4b5563',
-    borderRadius: '0.5rem',
-    padding: '0.75rem 1rem',
-  },
-  duration: 2000,
-  position: 'bottom-right',
-};
+const INITIAL_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
+/**
+ * Hook to manage the chess game state and actions
+ */
 export const useChessGame = () => {
-  const gameRef = useRef(new Chess(INITIAL_FEN));
-  const [gameState, setGameState] = useState({
-    fen: INITIAL_FEN,
-    orientation: 'white',
-    status: 'ongoing',
+  // The chess game instance - tracks the actual game state
+  const game = useRef(new Chess(INITIAL_FEN));
+
+  // UI state - tracks things like loading, player color, etc.
+  const [state, setState] = useState({
     loading: false,
-    moveHistory: [],
-    error: null,
-    playerColor: null, 
+    playerColor: null,
     isPlayerTurn: true,
-    cumulativeError: 0,
-    lastMoveError: 0,
-    showColorSelection: true 
+    showColorSelection: true,
   });
 
-  const startGame = useCallback((playerColor) => {
-    const newGame = new Chess(INITIAL_FEN);
-    gameRef.current = newGame;
-    const orientation = playerColor === 'black' ? 'black' : 'white';
-    
-    setGameState(prev => ({
-      ...prev,
-      fen: INITIAL_FEN,
-      orientation,
-      status: 'ongoing',
-      moveHistory: [],
-      error: null,
-      cumulativeError: 0,
-      lastMoveError: 0,
+  // Get the current game status (checkmate, stalemate, etc.)
+  const getStatus = () => {
+    if (game.current.isCheckmate()) return "checkmate";
+    if (game.current.isStalemate()) return "stalemate";
+    if (game.current.isDraw()) return "draw";
+    if (game.current.isCheck()) return "check";
+    return "ongoing";
+  };
+
+  // Start a new game with the chosen color
+  const startGame = async (playerColor) => {
+    game.current = new Chess(INITIAL_FEN);
+    setState({
+      loading: playerColor === "black",
       playerColor,
-      isPlayerTurn: playerColor === 'white',
-      loading: playerColor === 'black',
-      showColorSelection: false
-    }));
+      isPlayerTurn: playerColor === "white",
+      showColorSelection: false,
+    });
 
-    if (playerColor === 'black') {
-      makeBlunderMove(INITIAL_FEN).then(response => {
-        const { move: botMove, game_status, error_score } = response.data;
+    // If player chose black, bot goes first
+    if (playerColor === "black") {
+      try {
+        const response = await makeBlunderMove(INITIAL_FEN);
+        const botMove = response.data.move;
         if (botMove) {
-          gameRef.current.move(botMove);
-          setGameState(prev => ({
-            ...prev,
-            lastMoveError: error_score,
-            cumulativeError: (prev.cumulativeError || 0) + (error_score || 0),
-            fen: gameRef.current.fen(),
-            moveHistory: gameRef.current.history({ verbose: true }),
-            status: game_status,
-            loading: false,
-            isPlayerTurn: true
-          }));
-
-          if (error_score >= 800) {
-            toast.error(`Yikes—catastrophic blunder: -${error_score} cp!`, toastStyle);
-          } else if (error_score >= 500) {
-            toast.warning(`Oops—BlundrBot blundered by -${error_score} cp!`, toastStyle);
-          }
+          game.current.move(botMove);
         }
-      }).catch(error => {
-        console.error('Error in bot move:', { error: error.message });
-        setGameState(prev => ({
-          ...prev,
-          loading: false,
-          error: 'Failed to make bot move. Please try again.'
-        }));
-      });
+        setState((prev) => ({ ...prev, loading: false, isPlayerTurn: true }));
+      } catch (error) {
+        console.error("Bot move failed:", error);
+        setState((prev) => ({ ...prev, loading: false, isPlayerTurn: true }));
+      }
     }
-  }, [  ]);
+  };
 
-  const makeMove = useCallback(async (move) => {
-    if (!gameState.isPlayerTurn || gameState.loading) {
-      return false;
-    }
+  // Make a move for the player, then get bot's response
+  const makeMove = async (move) => {
+    // Don't allow moves if it's not player's turn or if loading
+    if (!state.isPlayerTurn || state.loading) return false;
 
     try {
-      setGameState(prev => ({ ...prev, loading: true, error: null }));
-      gameRef.current.move(move);
-      const playerMoveHistory = gameRef.current.history({ verbose: true });
-      
-      setGameState(prev => ({
-        ...prev,
-        fen: gameRef.current.fen(),
-        moveHistory: playerMoveHistory,
-        isPlayerTurn: false
-      }));
-      
-      if (gameRef.current.isGameOver()) {
-        setGameState(prev => ({
-          ...prev,
-          status: gameRef.current.isCheckmate() ? 'checkmate' : 
-                 gameRef.current.isStalemate() ? 'stalemate' : 
-                 gameRef.current.isDraw() ? 'draw' : 'game_over',
-          loading: false
-        }));
+      setState((prev) => ({ ...prev, loading: true }));
+
+      // Make the player's move
+      game.current.move(move);
+
+      // Check if game is over after player's move
+      if (game.current.isGameOver()) {
+        setState((prev) => ({ ...prev, loading: false }));
         return true;
       }
-      
-      const response = await makeBlunderMove(gameRef.current.fen());
-      const { move: botMove, game_status, error_score } = response.data;
-      
+
+      // Get bot's move
+      const response = await makeBlunderMove(game.current.fen());
+      const botMove = response.data.move;
       if (botMove) {
-        gameRef.current.move(botMove);
+        game.current.move(botMove);
       }
 
-      setGameState(prev => ({
-        ...prev,
-        fen: gameRef.current.fen(),
-        moveHistory: gameRef.current.history({ verbose: true }),
-        status: game_status,
-        loading: false,
-        isPlayerTurn: true,
-        lastMoveError: error_score || 0,
-        cumulativeError: (prev.cumulativeError || 0) + (error_score || 0)
-      }));
-
-      if (error_score >= 300) {
-        toast.error(`Yikes—catastrophic blunder: -${error_score} cp!`, {
-          duration: 2000,
-          position: 'bottom-right',
-          style: {
-            background: '#1f2937',
-            color: '#f3f4f6',
-            border: '1px solid #4b5563',
-            borderRadius: '0.5rem',
-            padding: '0.75rem 1rem',
-          }
-        });
-      } else if (error_score >= 100) {
-        toast.warning(`Oops—BlundrBot blundered by -${error_score} cp!`, {
-          duration: 2000,
-          position: 'bottom-right',
-          style: {
-            background: '#1f2937',
-            color: '#f3f4f6',
-            border: '1px solid #4b5563',
-            borderRadius: '0.5rem',
-            padding: '0.75rem 1rem',
-          }
-        });
-      }
-      
+      setState((prev) => ({ ...prev, loading: false, isPlayerTurn: true }));
       return true;
-    } catch (err) {
-      console.error('Error making move', { error: err.message, move: move.san });
-      setGameState(prev => ({
-        ...prev,
-        loading: false,
-        error: err.response?.data?.message || 'Failed to make move. Please try again.',
-        isPlayerTurn: true
-      }));
+    } catch (error) {
+      console.error("Move failed:", error);
+      setState((prev) => ({ ...prev, loading: false, isPlayerTurn: true }));
       return false;
     }
-  }, [gameState.isPlayerTurn, gameState.loading]);
+  };
 
-  const resetGame = useCallback(() => {
-    setGameState(prev => ({
-      ...prev,
-      showColorSelection: true
-    }));
-  }, []);
+  // Reset the game to show color selection again
+  const resetGame = () => {
+    game.current = new Chess(INITIAL_FEN);
+    setState({
+      loading: false,
+      playerColor: null,
+      isPlayerTurn: true,
+      showColorSelection: true,
+    });
+  };
 
+  // Return everything the UI needs
   return {
-    gameState,
+    gameState: {
+      fen: game.current.fen(),
+      moveHistory: game.current.history({ verbose: true }),
+      status: getStatus(),
+      orientation: state.playerColor === "black" ? "black" : "white",
+      isGameOver: game.current.isGameOver(),
+      ...state,
+    },
     makeMove,
     resetGame,
-    startGame
+    startGame,
   };
 };
