@@ -1,10 +1,2 @@
-# Dependencies
 /node_modules
-/.pnp
-.pnp.js
-
-# Environment files
-.env.*
-
-# Debug logs
-npm-debug.log*
+/build
