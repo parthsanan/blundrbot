@@ -19,7 +19,7 @@ const GamePanel = ({ loading, onReset, onCopyFEN }) => {
   };
 
   return (
-    <div className="w-[200px] p-4">
+    <div className="w-full">
       <div className="flex flex-col gap-3">
         <button
           onClick={onReset}

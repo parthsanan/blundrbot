@@ -87,9 +87,13 @@ const GamePage = () => {
           isPlayerWinner={isPlayerWinner}
         />
       )}
-      <div className="px-4 py-4 lg:pl-64 lg:pr-4">
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="w-full lg:w-48 xl:w-56">
+      <div className="container mx-auto px-4 py-8 max-w-[1800px]">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          {/* Left Spacer */}
+          <div className="hidden lg:block flex-1"></div>
+
+          {/* Left Panel - Game Controls */}
+          <div className="w-full lg:w-64 order-2 lg:order-none">
             <GamePanel
               status={status}
               onReset={handleNewGame}
@@ -98,8 +102,9 @@ const GamePage = () => {
             />
           </div>
 
-          <div className="flex justify-center">
-            <div className="bg-zinc-800/90 p-2 sm:p-4 md:p-6 rounded-xl">
+          {/* Center - Chessboard */}
+          <div className="flex-shrink-0 order-1 lg:order-none mx-auto lg:mx-0">
+            <div className="bg-zinc-800/90 p-4 rounded-xl">
               <Chessboard
                 position={fen}
                 onPieceDrop={makeMove}
@@ -113,16 +118,23 @@ const GamePage = () => {
             </div>
           </div>
 
-          <div className="w-full lg:w-72 xl:w-80">
-            <div className="card">
-              <h3 className="text-sm font-medium text-zinc-300 mb-3">
+          {/* Right Panel - Move History */}
+          <div className="w-full lg:w-80 order-3 lg:order-none">
+            <div
+              className="card overflow-hidden flex flex-col"
+              style={{ height: `${boardSize + 32}px` }}
+            >
+              <h3 className="text-sm font-medium text-zinc-300 mb-3 flex-shrink-0">
                 Move History
               </h3>
-              <div className="h-[600px]">
+              <div className="overflow-auto flex-1">
                 <MoveTable moveHistory={moveHistory} />
               </div>
             </div>
           </div>
+
+          {/* Right Spacer */}
+          <div className="hidden lg:block flex-1"></div>
         </div>
       </div>
     </div>
