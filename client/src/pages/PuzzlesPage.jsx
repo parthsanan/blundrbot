@@ -108,16 +108,17 @@ const PuzzlesPage = () => {
     setupPuzzle(currentPuzzleIndex + 1);
   };
 
-  const [boardSize, setBoardSize] = useState(() => {
+  // Calculate board size based on window dimensions
+  const calculateBoardSize = () => {
     if (typeof window === "undefined") return 600;
     return Math.min(window.innerWidth * 0.8, window.innerHeight * 0.7, 600);
-  });
+  };
+
+  const [boardSize, setBoardSize] = useState(calculateBoardSize());
 
   useEffect(() => {
     const handleResize = () => {
-      setBoardSize(
-        Math.min(window.innerWidth * 0.8, window.innerHeight * 0.7, 600)
-      );
+      setBoardSize(calculateBoardSize());
     };
 
     window.addEventListener("resize", handleResize);

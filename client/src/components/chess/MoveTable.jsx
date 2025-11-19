@@ -1,3 +1,7 @@
+/**
+ * Props:
+ * - moveHistory: Array of move objects from the game
+ */
 const MoveTable = ({ moveHistory = [] }) => {
   // Group moves into pairs: white's move, then black's move
   const movePairs = [];

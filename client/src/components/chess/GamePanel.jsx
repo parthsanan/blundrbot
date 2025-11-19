@@ -1,15 +1,12 @@
 import { toast } from "react-hot-toast";
 
-// Simple messages for each game status
-const STATUS_MESSAGES = {
-  ongoing: "Your turn",
-  checkmate: "Checkmate! Game over.",
-  stalemate: "Stalemate! Game drawn.",
-  check: "Check!",
-  draw: "Draw!",
-};
-
-const GamePanel = ({ status, loading, onReset, onCopyFEN, isPlayerTurn }) => {
+/**
+ * Props:
+ * - loading: Whether bot is thinking
+ * - onReset: Function to start a new game
+ * - onCopyFEN: Function to copy current position
+ */
+const GamePanel = ({ loading, onReset, onCopyFEN }) => {
   const copyPGN = async () => {
     try {
       const today = new Date().toISOString().split("T")[0];

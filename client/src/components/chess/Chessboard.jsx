@@ -2,6 +2,14 @@ import React, { useState } from "react";
 import { Chessboard as ReactChessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 
+/**
+ * Props:
+ * - position: FEN string representing the current board state
+ * - onPieceDrop: Function to call when a move is made
+ * - orientation: "white" or "black" - which side is at bottom
+ * - boardWidth: Size of the board in pixels
+ * - gameState: Object with loading and isPlayerTurn flags
+ */
 const CustomChessboard = ({
   position,
   onPieceDrop,
