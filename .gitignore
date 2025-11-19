@@ -1,0 +1,8 @@
+# Client Side
+client/node_modules
+client/build
+
+# Server Side
+server/__pycache__
+server/venv
+
