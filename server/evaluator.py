@@ -1,13 +1,5 @@
 import chess
-import logging
 from typing import Optional, Tuple        
-
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 # Piece values for simple evaluation
 PIECE_VALUES = {
