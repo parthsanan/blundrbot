@@ -1,5 +1,3 @@
-import logging
-import os
 from enum import Enum
 from typing import Optional
 
@@ -8,12 +6,6 @@ from evaluator import get_worst_move
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="BlundrBot API",
