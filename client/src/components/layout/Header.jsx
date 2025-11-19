@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { HomeIcon, PuzzlePieceIcon } from '@heroicons/react/24/outline';
-const logo = '/assets/logo.png';
+const logo = 'assets/logo.png';
 
 const Header = ({ activePage }) => (
   <header className="border-b border-gray-800 py-3 sm:py-4">
@@ -10,7 +10,7 @@ const Header = ({ activePage }) => (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
           <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-6">
             <Link to="/" className="group flex items-center gap-2 sm:gap-3">
-              <img src={process.env.PUBLIC_URL + logo} alt="Logo" className="h-10 sm:h-12"/>
+              <img src={logo} alt="Logo" className="h-10 sm:h-12"/>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
                 <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
                   Blundr

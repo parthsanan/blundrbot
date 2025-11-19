@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 // Using public URLs for static assets
 const logo = "/assets/logo.png";
 const boardScreenshot = "/assets/boardScreenshot.png";
+const puzzleScreenshot = "/assets/samplePuzzle.png";
 
 export default function LandingPage() {
   const [show, setShow] = useState(false);
@@ -20,11 +21,7 @@ export default function LandingPage() {
         <div className="grid md:grid-cols-2 items-center gap-12 mb-20">
           <div>
             <div className="mb-8 flex items-center gap-4">
-              <img
-                src={process.env.PUBLIC_URL + logo}
-                alt="Logo"
-                className="h-14"
-              />
+              <img src={logo} alt="Logo" className="h-14" />
               <h1 className="text-5xl md:text-6xl font-extrabold">
                 <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
                   Blundr
@@ -70,7 +67,7 @@ export default function LandingPage() {
             enterTo="opacity-100"
           >
             <img
-              src={process.env.PUBLIC_URL + boardScreenshot}
+              src={boardScreenshot}
               alt="Preview"
               className="rounded-xl shadow-xl border border-gray-700"
             />
@@ -105,7 +102,7 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center">
               <img
-                src={process.env.PUBLIC_URL + "/assets/samplePuzzle.png"}
+                src={puzzleScreenshot}
                 alt="Puzzle Screenshot"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
