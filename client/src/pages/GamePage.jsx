@@ -114,7 +114,7 @@ const GamePage = () => {
           </div>
 
           <div className="w-full lg:w-72 xl:w-80">
-            <div className="bg-zinc-800/80 rounded-xl border border-zinc-700/50 overflow-hidden p-4">
+            <div className="card">
               <h3 className="text-sm font-medium text-zinc-300 mb-3">
                 Move History
               </h3>

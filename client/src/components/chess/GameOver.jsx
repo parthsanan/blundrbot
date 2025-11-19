@@ -23,13 +23,13 @@ const GameOver = ({ status, onNewGame, isPlayerWinner }) => {
   const title = isPlayerWinner ? "🎉 Victory! 🎉" : "Game Over";
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-zinc-800 rounded-xl p-8 max-w-md w-full shadow-2xl text-center">
+    <div className="modal-overlay">
+      <div className="modal-content text-center">
         <h2 className="text-2xl font-bold text-white mb-4">{title}</h2>
         <p className="text-zinc-200 mb-6">{message}</p>
         <button
           onClick={onNewGame}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+          className="btn-primary"
           aria-label="Play again"
         >
           Play Again

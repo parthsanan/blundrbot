@@ -162,21 +162,21 @@ const PuzzlesPage = () => {
                   <button
                     onClick={handleShowSolution}
                     disabled={loading || solved || showSolution}
-                    className="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-800 disabled:text-zinc-500 text-white rounded-md transition"
+                    className="btn-secondary disabled:bg-zinc-800 disabled:text-zinc-500"
                   >
                     Show Solution
                   </button>
 
                   <button
                     onClick={handleNextPuzzle}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-md transition"
+                    className="btn bg-blue-600 hover:bg-blue-500 text-white"
                   >
                     Next Puzzle
                   </button>
                 </div>
 
                 {showSolution && puzzle && (
-                  <div className="mt-6 p-4 bg-zinc-700/50 rounded-lg">
+                  <div className="panel mt-6">
                     <h3 className="text-lg font-medium text-white mb-2">
                       Solution
                     </h3>

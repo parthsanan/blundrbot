@@ -20,8 +20,8 @@ const COLOR_OPTIONS = [
 ];
 
 const ColorSelection = ({ onSelectColor }) => (
-  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-    <div className="bg-zinc-800 rounded-xl p-8 max-w-md w-full shadow-2xl">
+  <div className="modal-overlay">
+    <div className="modal-content">
       <h2 className="text-2xl font-bold text-white mb-6 text-center">
         Choose Your Color
       </h2>
@@ -31,7 +31,7 @@ const ColorSelection = ({ onSelectColor }) => (
             <button
               key={id}
               onClick={() => onSelectColor(id)}
-              className={`${bgColor} ${textColor} font-bold py-4 px-6 rounded-lg ${hoverColor} ${border} transition-colors flex flex-col items-center`}
+              className={`${bgColor} ${textColor} ${hoverColor} ${border} btn flex-col items-center`}
               aria-label={label}
             >
               <span className="text-4xl mb-2" aria-hidden="true">

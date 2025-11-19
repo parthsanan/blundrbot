@@ -23,9 +23,7 @@ export default function LandingPage() {
             <div className="mb-8 flex items-center gap-4">
               <img src={logo} alt="Logo" className="h-14" />
               <h1 className="text-5xl md:text-6xl font-extrabold">
-                <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-                  Blundr
-                </span>
+                <span className="text-gradient">Blundr</span>
                 <span className="text-white">Bot</span>
               </h1>
             </div>
@@ -47,13 +45,13 @@ export default function LandingPage() {
             <div className="flex gap-4">
               <Link
                 to="/game"
-                className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-5 py-2.5 rounded-xl text-base font-semibold transition shadow-lg"
+                className="btn-accent flex items-center gap-2 shadow-lg"
               >
                 Play Now <ArrowRightIcon className="w-4 h-4" />
               </Link>
               <Link
                 to="/puzzles"
-                className="inline-flex items-center gap-2 bg-pink-600 hover:bg-pink-700 px-5 py-2.5 rounded-xl text-base font-semibold transition shadow-lg"
+                className="btn flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white shadow-lg"
               >
                 Try Puzzles <PuzzlePieceIcon className="w-4 h-4" />
               </Link>
