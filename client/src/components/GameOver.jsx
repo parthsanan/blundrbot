@@ -4,8 +4,8 @@ const GAME_OVER_MESSAGES = {
       ? "Congratulations! You won by checkmate! 🎉"
       : "Checkmate! How did you even get here? 😭",
   stalemate:
-    "Stalemate! Neither side could screw up enough to win - what a draw 🤝",
-  draw: "Draw! Both you and the bot were equally terrible - nice work? 🤷",
+    "Stalemate! Both you and the bot were equally terrible - nice work? 🤷",
+  draw: "Draw! How could you not win 😭",
   game_over: "Game over",
 };
 

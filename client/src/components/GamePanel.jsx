@@ -30,7 +30,6 @@ const GamePanel = ({ loading, onReset, onCopyFEN }) => {
         </button>
 
         <div className="panel">
-          <h3 className="text-sm font-medium text-zinc-300 mb-2">Export</h3>
           <div className="flex flex-col gap-2">
             <button
               onClick={onCopyFEN}
