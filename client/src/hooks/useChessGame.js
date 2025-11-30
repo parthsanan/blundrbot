@@ -3,21 +3,23 @@ import { Chess } from "chess.js";
 import { makeBlunderMove } from "../lib/api";
 
 const INITIAL_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+const BOT_MOVE_HISTORY_LENGTH = 5; // Number of recent bot moves to track
 
 /**
  * Hook to manage the chess game state and actions
  */
 export const useChessGame = () => {
-  // The chess game instance - tracks the actual game state
   const game = useRef(new Chess(INITIAL_FEN));
 
-  // UI state - tracks things like loading, player color, etc.
   const [state, setState] = useState({
     loading: false,
     playerColor: null,
     isPlayerTurn: true,
     showColorSelection: true,
   });
+
+  // Track recent bot moves to prevent repetition
+  const [botMoveHistory, setBotMoveHistory] = useState([]);
 
   // Get the current game status (checkmate, stalemate, etc.)
   const getStatus = () => {
@@ -31,6 +33,7 @@ export const useChessGame = () => {
   // Start a new game with the chosen color
   const startGame = async (playerColor) => {
     game.current = new Chess(INITIAL_FEN);
+    setBotMoveHistory([]); // Reset history on new game
     setState({
       loading: playerColor === "black",
       playerColor,
@@ -41,10 +44,11 @@ export const useChessGame = () => {
     // If player chose black, bot goes first
     if (playerColor === "black") {
       try {
-        const response = await makeBlunderMove(INITIAL_FEN);
+        const response = await makeBlunderMove(INITIAL_FEN, []);
         const botMove = response.data.move;
         if (botMove) {
           game.current.move(botMove);
+          setBotMoveHistory([botMove]);
         }
         setState((prev) => ({ ...prev, loading: false, isPlayerTurn: true }));
       } catch (error) {
@@ -72,10 +76,16 @@ export const useChessGame = () => {
       }
 
       // Get bot's move
-      const response = await makeBlunderMove(game.current.fen());
+      const response = await makeBlunderMove(
+        game.current.fen(),
+        botMoveHistory
+      );
       const botMove = response.data.move;
       if (botMove) {
         game.current.move(botMove);
+        setBotMoveHistory((prev) =>
+          [botMove, ...prev].slice(0, BOT_MOVE_HISTORY_LENGTH)
+        );
       }
 
       setState((prev) => ({ ...prev, loading: false, isPlayerTurn: true }));
@@ -90,6 +100,7 @@ export const useChessGame = () => {
   // Reset the game to show color selection again
   const resetGame = () => {
     game.current = new Chess(INITIAL_FEN);
+    setBotMoveHistory([]);
     setState({
       loading: false,
       playerColor: null,

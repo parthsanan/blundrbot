@@ -46,6 +46,7 @@ class MoveResponse(BaseModel):
 
 class MoveRequest(BaseModel):
     fen: str
+    recent_moves: Optional[list[str]] = None
 
 
 @app.get("/")
@@ -66,7 +67,7 @@ async def worst_move(request: MoveRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid FEN: {str(e)}")
 
-    move, score = get_worst_move(board)
+    move, score = get_worst_move(board, request.recent_moves)
     game_status = get_game_status(board)
 
     if move is None:

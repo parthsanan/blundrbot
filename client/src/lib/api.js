@@ -7,11 +7,11 @@ const API_URL =
     : "https://blundrbot-backend.onrender.com";
 
 // Make a request to get the bot's worst move
-export const makeBlunderMove = async (fen) => {
+export const makeBlunderMove = async (fen, recent_moves = []) => {
   try {
     const response = await axios.post(
       `${API_URL}/worst-move`,
-      { fen },
+      { fen, recent_moves },
       { timeout: 10000 } // 10 second timeout
     );
     return response;
