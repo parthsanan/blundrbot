@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import Header from "../components/layout/Header";
-import Chessboard from "../components/chess/Chessboard";
+import Header from "../components/Header";
+import Chessboard from "../components/Chessboard";
 import { Chess } from "chess.js";
 import { toast } from "react-hot-toast";
 import PUZZLES from "../data/puzzles.json";
@@ -10,7 +10,6 @@ const PuzzlesPage = () => {
   const [boardOrientation, setBoardOrientation] = useState("white");
   const [puzzle, setPuzzle] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedMove, setSelectedMove] = useState(null);
   const [showSolution, setShowSolution] = useState(false);
   const [solved, setSolved] = useState(false);
   const [streak, setStreak] = useState(0);

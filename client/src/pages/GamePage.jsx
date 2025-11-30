@@ -1,11 +1,11 @@
 import { useMemo, useCallback, useState, useEffect } from "react";
 import { useChessGame } from "../hooks/useChessGame";
-import Header from "../components/layout/Header";
-import Chessboard from "../components/chess/Chessboard";
-import GamePanel from "../components/chess/GamePanel";
-import MoveTable from "../components/chess/MoveTable";
-import ColorSelection from "../components/chess/ColorSelection";
-import GameOver from "../components/chess/GameOver";
+import Header from "../components/Header";
+import Chessboard from "../components/Chessboard";
+import GamePanel from "../components/GamePanel";
+import MoveTable from "../components/MoveTable";
+import ColorSelection from "../components/ColorSelection";
+import GameOver from "../components/GameOver";
 import { toast } from "react-hot-toast";
 import { Chess } from "chess.js";
 
