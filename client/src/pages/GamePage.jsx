@@ -1,5 +1,5 @@
 import { useMemo, useCallback, useState, useEffect } from "react";
-import { useChessGame } from "../hooks/useChessGame";
+import { useChessGame } from "../customHooks/useChessGame";
 import Header from "../components/Header";
 import Chessboard from "../components/Chessboard";
 import GamePanel from "../components/GamePanel";
