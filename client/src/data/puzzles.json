@@ -32,11 +32,11 @@
     {
         "id": 4,
         "fen": "rnbqkbnr/pppp1ppp/8/4P3/6n1/5P2/P1PNPPPP/R1BQKBNR w KQkq - 0 1",
-        "explanation": "h3 allows Ne3, fxe3, Qh4#",
+        "explanation": "Ne3, fxe3, Qh4 g3 Qxg3#",
         "worstMove": {
             "from": "h2",
             "to": "h3",
-            "explanation": "Ne3, fxe3, Qh4#"
+            "explanation": "Ne3, fxe3, Qh4 g3 Qxg3#"
         }
     },
     {
