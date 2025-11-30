@@ -3,7 +3,6 @@ import { Transition } from "@headlessui/react";
 import { ArrowRightIcon, PuzzlePieceIcon } from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
 
-// Using public URLs for static assets
 const logo = "/assets/logo.png";
 const boardScreenshot = "/assets/boardScreenshot.png";
 const puzzleScreenshot = "/assets/samplePuzzle.png";
@@ -17,7 +16,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
-      <main className="flex-grow container mx-auto px-6 py-16">
+      <main className="flex-grow container mx-auto pt-20 pr-20 pl-20">
         <div className="grid md:grid-cols-2 items-center gap-12 mb-20">
           <div>
             <div className="mb-8 flex items-center gap-4">
