@@ -1,6 +1,7 @@
 # Client Side
 client/node_modules
 client/build
+client/.env.local
 
 # Server Side
 server/__pycache__
