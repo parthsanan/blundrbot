@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage";
 import GamePage from "./pages/GamePage";
 import PuzzlesPage from "./pages/PuzzlesPage";
+import { analytics } from "./firebase/config";
 
 function App() {
   return (
