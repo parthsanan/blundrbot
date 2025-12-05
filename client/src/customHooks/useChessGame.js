@@ -64,14 +64,15 @@ export const useChessGame = () => {
     if (!state.isPlayerTurn || state.loading) return false;
 
     try {
-      setState((prev) => ({ ...prev, loading: true }));
-
-      // Make the player's move
+      // Make the player's move first
       game.current.move(move);
+
+      // Update state to show the player's move immediately
+      setState((prev) => ({ ...prev, loading: true, isPlayerTurn: false }));
 
       // Check if game is over after player's move
       if (game.current.isGameOver()) {
-        setState((prev) => ({ ...prev, loading: false }));
+        setState((prev) => ({ ...prev, loading: false, isPlayerTurn: false }));
         return true;
       }
 
@@ -92,6 +93,8 @@ export const useChessGame = () => {
       return true;
     } catch (error) {
       console.error("Move failed:", error);
+      // Revert the player's move if bot move fails
+      game.current.undo();
       setState((prev) => ({ ...prev, loading: false, isPlayerTurn: true }));
       return false;
     }
