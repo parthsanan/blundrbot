@@ -34,17 +34,42 @@ const GamePage = () => {
   );
 
   const [boardSize, setBoardSize] = useState(() => {
-    if (typeof window === "undefined") return 600;
-    const maxWidth = window.innerWidth * 0.9;
-    const maxHeight = window.innerHeight * 0.7;
-    return Math.min(maxWidth, maxHeight, 600);
+    if (typeof window === "undefined") return 400;
+
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    // More aggressive scaling for mobile devices
+    const widthMultiplier = screenWidth < 768 ? 0.85 : 0.9;
+    const heightMultiplier = screenWidth < 768 ? 0.6 : 0.7;
+
+    const maxWidth = screenWidth * widthMultiplier;
+    const maxHeight = screenHeight * heightMultiplier;
+
+    // Set reasonable min/max bounds
+    const minSize = 280; // Minimum playable size
+    const maxSize = 600; // Current maximum
+
+    return Math.max(minSize, Math.min(maxWidth, maxHeight, maxSize));
   });
 
   useEffect(() => {
     const handleResize = () => {
-      const maxWidth = window.innerWidth * 0.9;
-      const maxHeight = window.innerHeight * 0.7;
-      setBoardSize(Math.min(maxWidth, maxHeight, 600));
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+
+      // More aggressive scaling for mobile devices
+      const widthMultiplier = screenWidth < 768 ? 0.85 : 0.9;
+      const heightMultiplier = screenWidth < 768 ? 0.6 : 0.7;
+
+      const maxWidth = screenWidth * widthMultiplier;
+      const maxHeight = screenHeight * heightMultiplier;
+
+      // Set reasonable min/max bounds
+      const minSize = 280; // Minimum playable size
+      const maxSize = 600; // Current maximum
+
+      setBoardSize(Math.max(minSize, Math.min(maxWidth, maxHeight, maxSize)));
     };
 
     window.addEventListener("resize", handleResize);
