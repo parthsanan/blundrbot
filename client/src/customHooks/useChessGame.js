@@ -82,6 +82,11 @@ export const useChessGame = () => {
         botMoveHistory
       );
       const botMove = response.data.move;
+
+      // delay before bot move is played for better UX
+      const botThinkingTime = 200; // 200ms
+      await new Promise((resolve) => setTimeout(resolve, botThinkingTime));
+
       if (botMove) {
         game.current.move(botMove);
         setBotMoveHistory((prev) =>
