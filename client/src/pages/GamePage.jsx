@@ -20,6 +20,11 @@ const GamePage = () => {
     showColorSelection,
   } = gameState;
 
+  const [boardColors, setBoardColors] = useState({
+    dark: "#7B61FF",
+    light: "#E8E9FF",
+  });
+
   const isGameOver = useMemo(
     () => ["checkmate", "stalemate", "draw", "game_over"].includes(status),
     [status]
@@ -124,6 +129,8 @@ const GamePage = () => {
               onReset={handleNewGame}
               onCopyFEN={handleCopyFEN}
               isPlayerTurn={isPlayerTurn}
+              boardColors={boardColors}
+              setBoardColors={setBoardColors}
             />
           </div>
 
@@ -139,6 +146,8 @@ const GamePage = () => {
                   loading: gameState.loading,
                   isPlayerTurn: gameState.isPlayerTurn,
                 }}
+                customDarkSquareStyle={{ backgroundColor: boardColors.dark }}
+                customLightSquareStyle={{ backgroundColor: boardColors.light }}
               />
             </div>
           </div>

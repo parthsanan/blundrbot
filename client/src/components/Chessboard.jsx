@@ -16,6 +16,8 @@ const CustomChessboard = ({
   orientation,
   boardWidth,
   gameState,
+  customDarkSquareStyle,
+  customLightSquareStyle,
 }) => {
   // Track which square is selected and what moves are possible
   const [selectedSquare, setSelectedSquare] = useState(null);
@@ -102,8 +104,12 @@ const CustomChessboard = ({
         boardWidth={boardWidth}
         boardOrientation={orientation}
         customSquareStyles={squareStyles}
-        customDarkSquareStyle={{ backgroundColor: "#7B61FF" }}
-        customLightSquareStyle={{ backgroundColor: "#E8E9FF" }}
+        customDarkSquareStyle={
+          customDarkSquareStyle || { backgroundColor: "#7B61FF" }
+        }
+        customLightSquareStyle={
+          customLightSquareStyle || { backgroundColor: "#E8E9FF" }
+        }
       />
     </div>
   );
