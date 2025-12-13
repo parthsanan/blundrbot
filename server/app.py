@@ -16,7 +16,11 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://blundrbot.vercel.app"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://blundrbot.vercel.app",
+        "https://blundrbot.com/",
+    ],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

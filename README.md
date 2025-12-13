@@ -1,4 +1,4 @@
-# [BlundrBot🔗](https://blundrbot.vercel.app/)
+# [BlundrBot🔗](https://blundrbot.com/)
 
 A unique chess application that flips traditional chess on its head. Instead of playing to win, you'll face off to make the worst possible moves, challenging you like never before.
 
