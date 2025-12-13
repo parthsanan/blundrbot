@@ -19,7 +19,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "https://blundrbot.vercel.app",
-        "https://blundrbot.com/",
+        "https://blundrbot.com",
+        "https://www.blundrbot.com",
     ],
     allow_credentials=False,
     allow_methods=["*"],
